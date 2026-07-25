@@ -38,12 +38,15 @@ The project is structured according to core Software Development Life Cycle (SDL
 * **Tools & Server Environment:** XAMPP (Apache, MySQL), VS Code, Git & GitHub
 
 ## Demo Credentials
-* **Admin :
+* Admin :
    * Email : admin@clinic.com
    * PassWord : 123456
-* **Doctor (Ahmed) :
+* Doctor (Ahmed) :
    * Email : docgeneral@clinic.com
    * PassWord : 123456
-* **Doctor (Sara) :
+* Doctor (Sara) :
    * Email : docpediatric@clinic.com
    * PassWord : 123456     
+* Pationt (sama):
+   * Email : sama@gmail.com
+   * PassWord : 111
