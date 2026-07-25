@@ -49,4 +49,4 @@ The project is structured according to core Software Development Life Cycle (SDL
    * PassWord : 123456     
 * Pationt (sama):
    * Email : sama@gmail.com
-   * PassWord : 111
+   * PassWord : 222
