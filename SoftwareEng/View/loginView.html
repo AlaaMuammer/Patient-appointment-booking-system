@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>تسجيل الدخول - نظام العيادة</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f4f7f6; text-align: center; padding-top: 50px; }
+        .login-box { display: inline-block; border: 1px solid #ccc; padding: 25px; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 320px; }
+        input { display: block; margin: 10px auto; padding: 8px; width: 90%; text-align: right; }
+        .btn { background-color: #3498db; color: white; border: none; cursor: pointer; font-weight: bold; }
+        .btn:hover { background-color: #2980b9; }
+        .link { display: block; margin-top: 15px; font-size: 14px; color: #555; text-decoration: none; }
+        .link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <h2>تسجيل الدخول للنظام</h2>
+
+    <div class="login-box">
+        <?php if(!empty($error)) echo "<p style='color:red; font-weight:bold;'>$error</p>"; ?>
+
+        <form method="POST" action="../Controller/login.php">
+            <input type="email" name="email" placeholder="البريد الإلكتروني" required>
+            <input type="password" name="password" placeholder="كلمة المرور" required>
+            <input type="submit" name="login" value="دخول" class="btn">
+        </form>
+        <a href="../View/home.html" class="btn-back">الرجوع للرئيسية</a>
+        <a href="../Controller/insertPat.php" class="link">ليس لديك حساب؟ سجل كمريض جديد هنا</a>
+    </div>
+
+</body>
+</html>

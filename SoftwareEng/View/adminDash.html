@@ -1,0 +1,259 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>لوحة الأدمن - إدارة وإضافة المواعيد والحجوزات</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; direction: rtl; position: relative; }
+        
+        /* زر تسجيل الخروج متمركز فوق على الجانب اليسار */
+        .logout-btn { 
+            position: absolute; 
+            top: 20px; 
+            left: 30px; 
+            background-color: #e74c3c; 
+            color: white; 
+            padding: 8px 16px; 
+            text-decoration: none; 
+            font-weight: bold; 
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .logout-btn:hover { background-color: #c0392b; }
+
+        .header-title { text-align: center; margin-bottom: 30px; }
+
+        /* تقسيم الشاشة لقسمين باستخدام Flexbox */
+        .admin-container { 
+            display: flex; 
+            gap: 20px; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            align-items: flex-start;
+        }
+
+        /* القسم الأيمن: كرت الإضافة */
+        .add-card { 
+            flex: 1; 
+            background: white; 
+            padding: 25px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+        }
+
+        /* القسم الأيسر: يحتوي الجداول تحت بعضها */
+        .right-tables-container {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .list-card { 
+            background: white; 
+            padding: 25px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+        }
+
+        .form-group { margin-bottom: 15px; text-align: right; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
+        .form-group input, .form-group select { 
+            width: 100%; 
+            padding: 10px; 
+            border: 1px solid #ccc; 
+            border-radius: 5px; 
+            box-sizing: border-box; 
+        }
+
+        .submit-btn { 
+            background-color: #2ecc71; 
+            color: white; 
+            border: none; 
+            padding: 12px; 
+            width: 100%; 
+            border-radius: 5px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            font-size: 16px; 
+        }
+        .submit-btn:hover { background-color: #27ae60; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: center; }
+        th { background-color: #2c3e50; color: white; }
+        .booked-th { background-color: #e67e22; color: white; }
+
+        .alert-success { background-color: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin-bottom: 15px; }
+        .alert-danger { background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-bottom: 15px; }
+        .delete-link { color: #e74c3c; text-decoration: none; font-weight: bold; }
+        .delete-link:hover { text-decoration: underline; }
+
+        .confirm-btn { background-color: #27ae60; color: white; padding: 6px 10px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 13px; display: inline-block; }
+        .confirm-btn:hover { background-color: #219150; }
+        .success-text { color: #27ae60; font-weight: bold; background-color: #e8f8f5; padding: 4px 8px; border-radius: 4px; display: inline-block; font-size: 13px; }
+        .missed-text { color: #c0392b; font-weight: bold; background-color: #f9ebea; padding: 4px 8px; border-radius: 4px; display: inline-block; font-size: 13px; }
+        .upcoming-text { color: #2980b9; font-weight: bold; background-color: #ebf5fb; padding: 4px 8px; border-radius: 4px; display: inline-block; font-size: 13px; }
+
+        .btn-back { display: block; width: 200px; margin: 30px auto; text-align: center; background-color: #7f8c8d; color: white; padding: 10px; text-decoration: none; border-radius: 5px; font-weight: bold; }
+        .btn-back:hover { background-color: #95a5a6; }
+    </style>
+</head>
+<body>
+
+    <!-- زر تسجيل الخروج أعلى اليسار -->
+    <a href="logoutPat.php" class="logout-btn">تسجيل الخروج</a>
+
+    <div class="header-title">
+        <h2>لوحة التحكم - إدارة المواعيد والحجوزات 🏥</h2>
+        <p style="color: #7f8c8d;">إضافة المواعيد المتاحة للأطباء وإدارة الحجوزات الفعالة للمرضى</p>
+    </div>
+
+    <div class="admin-container">
+        
+        <!-- كرت إضافة موعد جديد -->
+        <div class="add-card">
+            <h3>➕ إضافة موعد جديد</h3>
+
+            <?php if (!empty($message)): ?>
+                <div class="alert-success"><?php echo $message; ?></div>
+            <?php endif; ?>
+
+            <?php if (!empty($error)): ?>
+                <div class="alert-danger"><?php echo $error; ?></div>
+            <?php endif; ?>
+
+            <form method="POST" action="admin_dashboard.php">
+                <input type="hidden" name="add_slot" value="1">
+
+                <div class="form-group">
+                    <label>اختر الطبيب:</label>
+                    <select name="doctor_id" required>
+                        <option value="">-- اختر الطبيب --</option>
+                        <?php 
+                        if ($doctors_result && mysqli_num_rows($doctors_result) > 0) {
+                            while ($doc = mysqli_fetch_assoc($doctors_result)) {
+                                echo "<option value='" . $doc['USERID'] . "'>د. " . htmlspecialchars($doc['First_Name'] . " " . $doc['Last_Name']) . "</option>";
+                            }
+                        }
+                        ?>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>التاريخ:</label>
+                    <input type="date" name="date" min="<?php echo $current_date; ?>" required>
+                </div>
+
+                <div class="form-group">
+                    <label>وقت البداية:</label>
+                    <input type="time" name="start_time" required>
+                </div>
+
+                <div class="form-group">
+                    <label>وقت النهاية:</label>
+                    <input type="time" name="end_time" required>
+                </div>
+
+                <button type="submit" class="submit-btn">إضافة الموعد</button>
+            </form>
+        </div>
+
+        <!-- الحاوية اليسرى التي تجمع الجدولين تحت بعض -->
+        <div class="right-tables-container">
+            
+            <!-- الجدول الأول: المواعيد المتاحة -->
+            <div class="list-card">
+                <h3>📋 قائمة المواعيد المتاحة حالياً</h3>
+
+                <?php if (isset($_GET['status']) && $_GET['status'] == 'deleted'): ?>
+                    <div class="alert-success">تم حذف الموعد بنجاح!</div>
+                <?php endif; ?>
+
+                <table>
+                    <tr>
+                        <th>الطبيب</th>
+                        <th>التاريخ</th>
+                        <th>الوقت</th>
+                        <th>إجراء</th>
+                    </tr>
+                    <?php 
+                    if ($available_result && mysqli_num_rows($available_result) > 0) {
+                        while($row = mysqli_fetch_assoc($available_result)) {
+                            echo "<tr>";
+                            echo "<td>د. " . htmlspecialchars($row['doc_first'] . " " . $row['doc_last']) . "</td>";
+                            echo "<td>" . htmlspecialchars($row['date']) . "</td>";
+                            echo "<td>" . htmlspecialchars($row['start_time'] . " - " . $row['end_time']) . "</td>";
+                            echo "<td>
+                                    <a href='admin_dashboard.php?delete_slot_id=" . intval($row['id']) . "' class='delete-link' onclick='return confirm(\"هل أنت متأكد من حذف هذا الموعد؟\");'>حذف</a>
+                                  </td>";
+                            echo "</tr>";
+                        }
+                    } else {
+                        echo "<tr><td colspan='4'>لا توجد مواعيد متاحة حالياً. قم بإضافة موعد جديد من القائمة المجاورة.</td></tr>";
+                    }
+                    ?>
+                </table>
+            </div>
+
+            <!-- الجدول الثاني (تحت جدول المواعيد المتاحة): حجوزات المرضى وتأكيد الحضور -->
+            <div class="list-card">
+                <h3>📂 سجل حجوزات المرضى وتأكيد الحضور</h3>
+
+                <?php if (isset($_GET['status']) && $_GET['status'] == 'confirmed'): ?>
+                    <div class="alert-success">تم تأكيد حضور المريض بنجاح!</div>
+                <?php endif; ?>
+
+                <table>
+                    <tr>
+                        <th class="booked-th">المريض</th>
+                        <th class="booked-th">الطبيب</th>
+                        <th class="booked-th">التاريخ والوقت</th>
+                        <th class="booked-th">حالة الزيارة</th>
+                    </tr>
+                    <?php 
+                    if ($booked_result && mysqli_num_rows($booked_result) > 0) {
+                        while($booked = mysqli_fetch_assoc($booked_result)) {
+                            $p_name = $booked['pat_first'] . " " . $booked['pat_last'];
+                            $d_name = "د. " . $booked['doc_first'] . " " . $booked['doc_last'];
+                            $db_status = strtolower(trim($booked['status']));
+                            $slot_date = $booked['date'];
+                            $slot_time = $booked['start_time'];
+
+                            $is_past = ($slot_date < $current_date || ($slot_date == $current_date && $slot_time < $current_time));
+                            $is_confirmed = ($db_status === 'completed' || $db_status === 'confirmed');
+
+                            echo "<tr>";
+                            echo "<td>" . htmlspecialchars($p_name) . "</td>";
+                            echo "<td>" . htmlspecialchars($d_name) . "</td>";
+                            echo "<td>" . htmlspecialchars($booked['date']) . "<br><small style='color:#7f8c8d;'>" . htmlspecialchars($booked['start_time'] . " - " . $booked['end_time']) . "</small></td>";
+                            echo "<td>";
+
+                            if ($is_confirmed) {
+                                echo "<span class='success-text'>تمت الزيارة</span>";
+                            } elseif ($is_past && !$is_confirmed) {
+                                echo "<span class='missed-text'>موعد فائت ولم تتم الزيارة</span>";
+                            } else {
+                                echo "<a href='admin_dashboard.php?confirm_id=" . intval($booked['id']) . "' class='confirm-btn'>تأكيد الحضور</a><br>";
+                                echo "<span class='upcoming-text' style='margin-top:4px;'>قادم</span>";
+                            }
+
+                            echo "</td>";
+                            echo "</tr>";
+                        }
+                    } else {
+                        echo "<tr><td colspan='4'>لا توجد أي حجوزات مسجلة للمرضى حالياً.</td></tr>";
+                    }
+                    ?>
+                </table>
+            </div>
+
+        </div>
+
+    </div>
+
+    <a href="home.html" class="btn-back">الرجوع للرئيسية</a>
+
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>جدول مواعيد الطبيب</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f4f7f6; padding: 20px; text-align: center; position: relative; }
+        
+        /* زر تسجيل الخروج بالأحمر أعلى اليسار */
+        .logout-btn { 
+            position: absolute; 
+            top: 20px; 
+            left: 30px; 
+            background-color: #e74c3c; 
+            color: white; 
+            padding: 8px 16px; 
+            text-decoration: none; 
+            font-weight: bold; 
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: background 0.3s ease;
+        }
+        .logout-btn:hover { background-color: #c0392b; }
+
+        table { width: 85%; margin: 20px auto; border-collapse: collapse; background: white; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        th, td { padding: 12px; border: 1px solid #ddd; text-align: center; }
+        th { background-color: #e67e22; color: white; }
+        
+        .success-text { color: #27ae60; font-weight: bold; background-color: #e8f8f5; padding: 6px 12px; border-radius: 4px; display: inline-block; }
+        .missed-text { color: #c0392b; font-weight: bold; background-color: #f9ebea; padding: 6px 12px; border-radius: 4px; display: inline-block; }
+        .upcoming-text { color: #2980b9; font-weight: bold; background-color: #ebf5fb; padding: 6px 12px; border-radius: 4px; display: inline-block; }
+
+        .btn-back { display: block; width: 200px; margin: 30px auto; text-align: center; background-color: #7f8c8d; color: white; padding: 10px; text-decoration: none; border-radius: 5px; font-weight: bold; }
+        .btn-back:hover { background-color: #95a5a6; }
+    </style>
+</head>
+<body>
+
+    <a href="../Controller/logoutPat.php" class="logout-btn">تسجيل الخروج</a>
+
+    <h2>مرحباً د. <?php echo htmlspecialchars($_SESSION['First_Name']); ?> - المواعيد المحجوزة في عيادتك</h2>
+    
+    <table>
+        <tr>
+            <th>اسم المريض</th>
+            <th>التاريخ</th>
+            <th>الوقت (من)</th>
+            <th>الوقت (إلى)</th>
+            <th>حالة الزيارة</th>
+        </tr>
+        <?php 
+        if ($result_apps && mysqli_num_rows($result_apps) > 0) {
+            while($app = mysqli_fetch_assoc($result_apps)) {
+                $pat_first = isset($app['pat_first']) ? $app['pat_first'] : '';
+                $pat_last = isset($app['pat_last']) ? $app['pat_last'] : '';
+                
+                $db_status  = strtolower(trim($app['status']));
+                $slot_date  = $app['date'];
+                $slot_time  = $app['start_time'];
+                
+                $is_past = ($slot_date < $current_date || ($slot_date == $current_date && $slot_time < $current_time));
+                $is_confirmed = ($db_status === 'completed' || $db_status === 'confirmed');
+
+                echo "<tr>";
+                echo "<td>" . htmlspecialchars($pat_first . " " . $pat_last) . "</td>";
+                echo "<td>" . htmlspecialchars($app['date']) . "</td>";
+                echo "<td>" . htmlspecialchars($app['start_time']) . "</td>";
+                echo "<td>" . htmlspecialchars($app['end_time']) . "</td>";
+                echo "<td>";
+
+                // عرض حالة الموعد فقط بناءً على الوضع والتاريخ
+                if ($is_confirmed) {
+                    echo "<span class='success-text'>تمت الزيارة</span>";
+                } elseif ($is_past) {
+                    echo "<span class='missed-text'>موعد فائت</span>";
+                } else {
+                    echo "<span class='upcoming-text'>قادم</span>";
+                }
+                
+                echo "</td>";
+                echo "</tr>";
+            }
+        } else {
+            echo "<tr><td colspan='5'>لا توجد أي حجوزات مسجلة باسمك حالياً.</td></tr>";
+        }
+        ?>
+    </table>
+
+    <a href="home.html" class="btn-back">الرجوع للرئيسية</a>
+
+</body>
+</html>
